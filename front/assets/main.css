@@ -1,0 +1,22 @@
+body, #main {
+    height: 100vh;
+}
+
+.container.is-vcentered {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.is-full-height {
+    height: 100%;
+}
+
+.is-256x256 {
+    width: 256px;
+    height: 256px;
+}
+
+th, td {
+    width: 15rem;
+}
