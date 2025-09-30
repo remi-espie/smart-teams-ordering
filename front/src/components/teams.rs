@@ -3,13 +3,18 @@
 use crate::local_storage::use_persistent;
 use dioxus::prelude::*;
 use dioxus_logger::tracing::info;
+use uuid::Uuid;
 
 #[derive(PartialEq, Props, Clone)]
 pub(crate) struct TeamProps {
-    uuid: String,
+    uuid: Uuid,
 }
 
 pub(crate) fn Teams(props: TeamProps) -> Element {
+    let name = use_persistent(
+        format!("name_{}", props.uuid),
+        || "Unnamed".to_string()
+    );
     let users = use_persistent(
         format!("users_{}", props.uuid),
         || vec!["User 1".to_string(), "User 2".to_string()]
@@ -282,21 +287,21 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
         }
     };
 
-    use_effect(move || {
+    use_hook(|| {
         validate_preferences();
     });
 
     // Render
     rsx! {
         div { class: "container is-fluid",
-            h1 { class: "title has-text-centered py-5", {props.uuid} }
+            h1 { class: "title has-text-centered py-5", {name.get()} }
             div { class: "mb-5 has-text-centered",
                 p { "Define your teams and users, then set each user's preferences for the teams. Once everything is set, click on 'Sort teams' to see the optimal assignment based on the Gale-Shapley algorithm." }
                 p { "You can add or remove users and teams using the '➕' and '🗑️' buttons respectively. Make sure that each user has unique preferences for the teams and that team sizes are appropriate." }
                 p { "There should be at least as many total team slots as users." }
             },
             div { class: "table-container mb-6",
-                table { class: "table is-striped is-hoverable",
+                table { class: "table is-striped is-hoverable m-auto",
                     thead {
                         tr {
                             th { class: "has-text-centered is-vcentered", "/" }
@@ -317,7 +322,7 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
                                     }
                                 }
                             })}
-                            th {
+                            th { "style": "width: min-content",
                                 button {
                                     class: "button is-primary is-small",
                                     onclick: move |_| add_team(),

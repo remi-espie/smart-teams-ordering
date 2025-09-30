@@ -1,4 +1,5 @@
 use dioxus::prelude::*;
+use uuid::Uuid;
 use crate::local_storage::use_persistent;
 use crate::routes::Route;
 
@@ -8,7 +9,7 @@ static LOGO: Asset = asset!("/assets/logo.png");
 pub(crate) fn Home() -> Element {
     let nav = navigator();
 
-    let mut team = use_persistent("team_name", || "".to_string());
+    let mut team = use_signal(|| "".to_string());
     let mut team_code = use_signal(|| "".to_string());
 
     rsx! {
@@ -37,17 +38,20 @@ pub(crate) fn Home() -> Element {
                 }
                 form {
                     onsubmit: move |_| {
-                        nav.push(Route::Teams { uuid: team.get() });
+                            let uuid = Uuid::new_v4();
+                            let mut name = use_persistent(format!("name_{}", uuid), || "".to_string());
+                            name.set(team().to_string());
+                        nav.push(Route::Teams { uuid } );
                     },
                     class: "box field is-flex is-grouped",
                     input {
                         class: "input",
                         placeholder: "Team name",
-                        oninput: move |e| team.set(e.value()), value: team.get() 
+                        oninput: move |e| team.set(e.value()), value: team()
                         }
                     button {
                         class: "button is-primary",
-                        disabled: team.get().is_empty(),
+                        disabled: team().is_empty(),
                         "Create"
                     }
                     }
@@ -60,13 +64,16 @@ pub(crate) fn Home() -> Element {
                 }
                 form {
                     class: "box field is-flex is-grouped",
+                        onsubmit: move |_| {
+                        nav.push(Route::Teams { uuid: Uuid::parse_str(team_code().as_str()).unwrap() } );
+                    },
                     input {
                         class: "input",
                         placeholder: "Team code",
                         oninput: move |e| team_code.set(e.value()), value: team_code() }
                     button {
                         class: "button is-primary",
-                        disabled: team_code().is_empty(),
+                        disabled: Uuid::parse_str(team_code().as_str()).is_err(),
                         "Join"
                     }
                     }

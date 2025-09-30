@@ -13,6 +13,8 @@ dioxus = { version = "0.6.3", features = ["web", "router"] }
 dioxus-logger = "0.6.2"
 gloo-storage = "0.3.0"
 serde = { version = "1.0.217", features = ["derive"] }
+uuid = { version = "1.18.1", features = ["v4", "js"] }
+tracing = "0.1.41"
 
 [profile]
 
