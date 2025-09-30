@@ -1,0 +1,12 @@
+[package]
+name = "back"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = "0.8.5"
+axum-macros = "0.5.0"
+diesel = "2.3.2"
+serde = { version = "1.0.228", features = ["derive"] }
+tokio = "1.47.1"
+tracing-subscriber = "0.3.20"
