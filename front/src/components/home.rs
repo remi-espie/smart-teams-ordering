@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 use uuid::Uuid;
-use crate::local_storage::use_persistent;
+use dioxus_sdk_storage::use_persistent;
 use crate::routes::Route;
 
 static LOGO: Asset = asset!("/assets/logo.png");

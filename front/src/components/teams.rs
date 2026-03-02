@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use crate::local_storage::use_persistent;
+use dioxus_sdk_storage::use_persistent;
 use dioxus::prelude::*;
 use dioxus_logger::tracing::info;
 use uuid::Uuid;
@@ -43,9 +43,9 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
         let mut is_valid = is_valid.to_owned();
         let mut is_valid_message = is_valid_message.to_owned();
         move || {
-            let users = users.get();
-            let teams = teams.get();
-            let preferences = preferences.get();
+            let users = users();
+            let teams = teams();
+            let preferences = preferences();
             for i in 0..users.len() {
                 for j in 0..teams.len() {
                     // Check if preference is in range
@@ -70,13 +70,13 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
             }
             for i in 0..teams.len() {
                 // Check if team size is valid
-                if teams_size.get()[i] < 1 || teams_size.get()[i] > users.len() {
+                if teams_size()[i] < 1 || teams_size()[i] > users.len() {
                     is_valid.set(false);
                     is_valid_message.set(format!("{} has invalid team size", teams[i]));
                     return;
                 }
             }
-            let total_size: usize = teams_size.get().iter().sum();
+            let total_size: usize = teams_size().iter().sum();
             if total_size < users.len() {
                 is_valid.set(false);
                 is_valid_message.set(format!(
@@ -98,13 +98,13 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
         let teams = teams.to_owned();
         let mut validate_preferences = validate_preferences;
         move || {
-            let mut usr = users.get();
+            let mut usr = users();
             let len = usr.len();
             usr.push(format!("User {}", len + 1));
             users.set(usr);
 
-            let mut pref = preferences.get();
-            pref.push(vec![0; teams.get().len()]);
+            let mut pref = preferences();
+            pref.push(vec![0; teams().len()]);
             preferences.set(pref);
 
             validate_preferences();
@@ -118,16 +118,16 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
         let mut preferences = preferences.to_owned();
         let mut validate_preferences = validate_preferences;
         move || {
-            let mut tms = teams.get();
+            let mut tms = teams();
             let len = tms.len();
             tms.push(format!("Team {}", len + 1));
             teams.set(tms);
 
-            let mut tms_size = teams_size.get();
+            let mut tms_size = teams_size();
             tms_size.push(1);
             teams_size.set(tms_size);
 
-            let mut pref = preferences.get();
+            let mut pref = preferences();
             for p in pref.iter_mut() {
                 p.push(0);
             }
@@ -142,7 +142,7 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
         let mut users = users.to_owned();
         let mut validate_preferences = validate_preferences;
         move |idx: usize, new_user: String| {
-            let mut usr = users.get();
+            let mut usr = users();
             if let Some(user) = usr.get_mut(idx) {
                 *user = new_user;
             }
@@ -155,7 +155,7 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
         let mut teams = teams.to_owned();
         let mut validate_preferences = validate_preferences;
         move |idx: usize, new_team: String| {
-            let mut tms = teams.get();
+            let mut tms = teams();
             if let Some(team) = tms.get_mut(idx) {
                 *team = new_team;
             }
@@ -171,11 +171,11 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
         let mut preferences = preferences.to_owned();
         let mut validate_preferences = validate_preferences;
         move |idx: usize| {
-            let mut usr = users.get();
+            let mut usr = users();
             usr.remove(idx);
             users.set(usr);
 
-            let mut pref = preferences.get();
+            let mut pref = preferences();
             pref.remove(idx);
             preferences.set(pref);
 
@@ -188,15 +188,15 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
         let mut preferences = preferences.to_owned();
         let mut validate_preferences = validate_preferences;
         move |idx: usize| {
-            let mut tms = teams.get();
+            let mut tms = teams();
             tms.remove(idx);
             teams.set(tms);
 
-            let mut tms_size = teams_size.get();
+            let mut tms_size = teams_size();
             tms_size.remove(idx);
             teams_size.set(tms_size);
 
-            let mut pref = preferences.get();
+            let mut pref = preferences();
             for p in pref.iter_mut() {
                 p.remove(idx);
             }
@@ -221,10 +221,10 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
 
         move || {
             gale_shapley_loading.set(true);
-            let users = users.get();
-            let teams = teams.get();
-            let teams_size = teams_size.get();
-            let preferences = preferences.get();
+            let users = users();
+            let teams = teams();
+            let teams_size = teams_size();
+            let preferences = preferences();
 
             let n_users = users.len();
             let n_teams = teams.len();
@@ -294,7 +294,7 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
     // Render
     rsx! {
         div { class: "container is-fluid",
-            h1 { class: "title has-text-centered py-5", {name.get()} }
+            h1 { class: "title has-text-centered py-5", {name()} }
             div { class: "mb-5 has-text-centered",
                 p { "Define your teams and users, then set each user's preferences for the teams. Once everything is set, click on 'Sort teams' to see the optimal assignment based on the Gale-Shapley algorithm." }
                 p { "You can add or remove users and teams using the '➕' and '🗑️' buttons respectively. Make sure that each user has unique preferences for the teams and that team sizes are appropriate." }
@@ -305,7 +305,7 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
                     thead {
                         tr {
                             th { class: "has-text-centered is-vcentered", "/" }
-                            {teams.get().iter().enumerate().map(|(idx, team)| rsx! {
+                            {teams().iter().enumerate().map(|(idx, team)| rsx! {
                                 th {
                                     div { class: "field is-flex is-grouped",
                                         button {
@@ -334,18 +334,18 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
                     tbody {
                         tr {
                             th { class: "has-text-centered is-vcentered", "Team size" }
-                            {teams.get().iter().enumerate().map(|(team_idx, _)| rsx! {
+                            {teams().iter().enumerate().map(|(team_idx, _)| rsx! {
                                 th {
                                     input {
                                         class: "input is-static",
                                         r#type: "number",
                                         placeholder: "0",
                                         min: "1",
-                                        max: users.get().len().to_string(),
-                                        value: teams_size.get()[team_idx].to_string(),
+                                        max: users().len().to_string(),
+                                        value: teams_size()[team_idx].to_string(),
                                         oninput: move |e| {
                                             if let Ok(num) = e.value().parse::<usize>() {
-                                                let mut tms_size = teams_size.get();
+                                                let mut tms_size = teams_size();
                                                 tms_size[team_idx] = num;
                                                 teams_size.set(tms_size);
 
@@ -358,7 +358,7 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
                                 }
                             })}
                         }
-                        {users.get().iter().enumerate().map(|(idx, user)| rsx! {
+                        {users().iter().enumerate().map(|(idx, user)| rsx! {
                             tr {
                                 td {
                                     div { class: "field is-flex is-grouped",
@@ -375,18 +375,18 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
                                         }
                                     }
                                 }
-                                {teams.get().iter().enumerate().map(|(team_idx, _)| rsx! {
+                                {teams().iter().enumerate().map(|(team_idx, _)| rsx! {
                                     td {
                                         input {
                                             class: "input is-static",
                                             r#type: "number",
                                             placeholder: "0",
                                             min: "1",
-                                            max: teams.get().len().to_string(),
-                                            value: preferences.get()[idx][team_idx].to_string(),
+                                            max: teams().len().to_string(),
+                                            value: preferences()[idx][team_idx].to_string(),
                                             oninput: move |e| {
                                                 if let Ok(num) = e.value().parse::<usize>() {
-                                                    let mut pref = preferences.get();
+                                                    let mut pref = preferences();
                                                     pref[idx][team_idx] = num;
                                                     preferences.set(pref);
 
@@ -436,7 +436,7 @@ pub(crate) fn Teams(props: TeamProps) -> Element {
                             table { class: "table is-striped is-hoverable is-fullwidth",
                                 thead {
                                     tr {
-                                        {teams.get().iter().map(|team| rsx! {
+                                        {teams().iter().map(|team| rsx! {
                                             th { {team.as_str()} }
                                         })}
                                     }

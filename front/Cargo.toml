@@ -7,14 +7,15 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dioxus = { version = "0.6.3", features = ["web", "router"] }
+dioxus = { version = "0.7.3", features = ["web", "router"] }
 
 # Debug
-dioxus-logger = "0.6.2"
+dioxus-logger = "0.7.3"
 gloo-storage = "0.3.0"
-serde = { version = "1.0.217", features = ["derive"] }
-uuid = { version = "1.18.1", features = ["v4", "js"] }
-tracing = "0.1.41"
+serde = { version = "1.0.228", features = ["derive"] }
+uuid = { version = "1.21.0", features = ["v4", "js"] }
+tracing = "0.1.44"
+dioxus-sdk-storage = "0.7.0"
 
 [profile]
 

@@ -1,6 +1,5 @@
 #![allow(non_snake_case)]
 
-mod local_storage;
 mod components;
 mod routes;
 
